@@ -1,0 +1,8 @@
+﻿@model IEnumerable<byte[]>
+
+<h2>Liste des photos</h2>
+
+@foreach (var photo in Model)
+{
+    <img src="data:image;base64,@Convert.ToBase64String(photo)" alt="Photo" />
+}
