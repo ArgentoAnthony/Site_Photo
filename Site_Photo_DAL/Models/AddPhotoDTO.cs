@@ -12,9 +12,11 @@ namespace Site_Photo_DAL.Models
     {
         public string? Name { get; set; }
         [Required(ErrorMessage = "Veuillez sélectionner une image.")]
-        public byte[] Image { get; set; }
-        //[Required]
+        public IFormFile Image { get; set; } // Utilisation de IFormFile pour récupérer l'image depuis le formulaire
+        [Required]
         public int Category { get; set; }
+
+        public string ImagePath { get; set; }
         public DateTime DateAjout { get; set; }
     }
 }

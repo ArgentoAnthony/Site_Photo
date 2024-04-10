@@ -11,7 +11,7 @@ namespace Site_Photo_DAL.Interface
     public interface IPhotoService
     {
         IEnumerable<string> GetAllCategory();
-        List<Image> GetAllPhotos();
+        List<string> GetAllPhotos();
         void InsertPhoto(AddPhotoDTO model);
     }
 }

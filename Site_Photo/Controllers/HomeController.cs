@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Site_Photo.Models;
 using Site_Photo_DAL.Interface;
 using Site_Photo_DAL.Models;
@@ -12,11 +13,13 @@ namespace Site_Photo.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IPhotoService _photoService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public HomeController(ILogger<HomeController> logger, IPhotoService photoService)
+        public HomeController(ILogger<HomeController> logger, IPhotoService photoService, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
             _photoService = photoService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -35,42 +38,39 @@ namespace Site_Photo.Controllers
         }
 
         [HttpPost]
-        public IActionResult AjoutPhoto(AddPhotoDTO model, IFormFile image)
+        public IActionResult AjoutPhoto(AddPhotoDTO model)
         {
 
-                if (image != null && image.Length > 0)
+            if (model.Image != null && model.Image.Length > 0)
+            {
+                // Générer un nom de fichier unique
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Image.FileName);
+
+                var imagePath = Path.Combine("images", fileName);
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, imagePath);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    // Convertissez l'image en tableau d'octets
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        image.CopyTo(memoryStream);
-                        model.Image = memoryStream.ToArray();
-                    }
+                    model.Image.CopyTo(stream);
                 }
-                else
-                {
-                    return View(model);
-                }
+
+                model.ImagePath = imagePath;
                 model.DateAjout = DateTime.Now;
 
+                // Enregistrer le modèle dans la base de données
                 _photoService.InsertPhoto(model);
 
                 return RedirectToAction("Index", "Home");
-        }
-        private byte[] ImageToByteArray(Image image)
-        {
-            using (MemoryStream memoryStream = new MemoryStream())
+            }
+            else
             {
-                image.Save(memoryStream, ImageFormat.Jpeg);
-                return memoryStream.ToArray();
+                return View(model);
             }
         }
-
         public IActionResult GetAllPhotos()
         {
-            IEnumerable<Image> images = _photoService.GetAllPhotos();
-            List<byte[]> photos = images.Select(image => ImageToByteArray(image)).ToList();
-            return View("ListPhoto", photos);
+            List<string> photoPaths = _photoService.GetAllPhotos();
+            return View("ListPhoto", photoPaths);
         }
 
         public IActionResult Privacy()

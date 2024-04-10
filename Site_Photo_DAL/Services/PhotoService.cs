@@ -36,32 +36,26 @@ namespace Site_Photo_DAL.Services
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = @"INSERT INTO Photos (Name, Image, Id_Category, Date_Ajout) 
-                                 VALUES (@Name, @Image, @Category, @DateAjout)";
+                string query = @"INSERT INTO Photos (Name, ImagePath, Id_Category, Date_Ajout) 
+                                 VALUES (@Name, @ImagePath, @Category, @DateAjout)";
                 connection.Execute(query, model);
             }
         }
 
-        public List<Image> GetAllPhotos()
+        public List<string> GetAllPhotos()
         {
-            List<Image> photos = new List<Image>();
+            List<string> photoPaths = new List<string>();
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT Image FROM Photos";
-                List<byte[]> imagesBytes = connection.Query<byte[]>(query).ToList();
-                foreach (byte[] imageData in imagesBytes)
-                {
-                    using (MemoryStream memoryStream = new MemoryStream(imageData))
-                    {
-                        Image image = Image.FromStream(memoryStream);
-                        photos.Add(image);
-                    }
-                }
+                string query = "SELECT ImagePath FROM Photos";
+                photoPaths = connection.Query<string>(query).ToList();
             }
-            return photos;
+            return photoPaths;
         }
 
-    }
 
+
+
+    }
 }
