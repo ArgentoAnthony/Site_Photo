@@ -10,9 +10,8 @@ namespace Site_Photo_DAL.Models
 {
     public class AddPhotoDTO
     {
-        public string? Name { get; set; }
         [Required(ErrorMessage = "Veuillez sélectionner une image.")]
-        public IFormFile Image { get; set; } // Utilisation de IFormFile pour récupérer l'image depuis le formulaire
+        public List<IFormFile> Images { get; set; }
         [Required(ErrorMessage = "Veuillez sélectionner une catégorie.")]
         public List<Category> Categories { get; set; }
         public int Id_Category { get; set; }

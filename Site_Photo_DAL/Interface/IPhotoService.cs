@@ -13,6 +13,7 @@ namespace Site_Photo_DAL.Interface
         void DeletePhoto(int id);
         IEnumerable<Category> GetAllCategory();
         List<string> GetAllPhotos();
+        string GetCategoryNameById(int id);
         int GetPhotoIdByPath(string path);
         void InsertPhoto(AddPhotoDTO model);
     }

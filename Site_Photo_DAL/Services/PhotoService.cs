@@ -25,13 +25,25 @@ namespace Site_Photo_DAL.Services
             }
         }
 
+        public string GetCategoryNameById(int id) 
+        {
+            string Name;
+            using(IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string Query = $"SELECT [Name] FROM Category WHERE Id = @Id";
+                Name = connection.QuerySingleOrDefault<string>(Query, new { Id = id });
+            }
+            return Name;
+        }
+
         public void InsertPhoto(AddPhotoDTO model)
         {
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = @"INSERT INTO Photos (Name, ImagePath, Id_Category, Date_Ajout) 
-                                 VALUES (@Name, @ImagePath, @Id_Category, @DateAjout)";
+                string query = @"INSERT INTO Photos (ImagePath, Id_Category, Date_Ajout) 
+                                 VALUES (@ImagePath, @Id_Category, @DateAjout)";
                 connection.Execute(query, model);
             }
         }

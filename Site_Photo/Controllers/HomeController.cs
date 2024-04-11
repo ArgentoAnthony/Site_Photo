@@ -30,6 +30,11 @@ namespace Site_Photo.Controllers
         public IActionResult DeletePhoto(string PathPhoto)
         {
             int IdPhoto = _photoService.GetPhotoIdByPath(PathPhoto);
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, PathPhoto);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
             _photoService.DeletePhoto(IdPhoto);
             return RedirectToAction("GetAllPhotos");
         }
@@ -51,32 +56,42 @@ namespace Site_Photo.Controllers
         [HttpPost]
         public IActionResult AjoutPhoto(AddPhotoDTO model)
         {
-
-            if (model.Image != null && model.Image.Length > 0)
+            foreach (var image in model.Images)
             {
-                // Générer un nom de fichier unique
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Image.FileName);
-
-                var imagePath = Path.Combine("images", fileName);
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, imagePath);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (image != null && image.Length > 0)
                 {
-                    model.Image.CopyTo(stream);
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                    int categoryId = model.Id_Category;
+                    var categoryName = _photoService.GetCategoryNameById(categoryId);
+
+                    // Créer le chemin de destination en fonction de la catégorie
+                    var webRootPath = _webHostEnvironment.WebRootPath;
+                    var categoryPath = Path.Combine("images", categoryName);
+                    var imagePath = Path.Combine(categoryPath, fileName);
+                    var filePath = Path.Combine(webRootPath, imagePath);
+
+                    if (!Directory.Exists(categoryPath))
+                    {
+                        Directory.CreateDirectory(categoryPath);
+                    }
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        image.CopyTo(stream);
+                    }
+
+                    var photoModel = new AddPhotoDTO
+                    {
+                        ImagePath = imagePath,
+                        Id_Category = categoryId,
+                        DateAjout = DateTime.Now
+                    };
+
+                    _photoService.InsertPhoto(photoModel);
                 }
-
-                model.ImagePath = imagePath;
-                model.DateAjout = DateTime.Now;
-
-                // Enregistrer le modèle dans la base de données
-                _photoService.InsertPhoto(model);
-
-                return RedirectToAction("Index", "Home");
             }
-            else
-            {
-                return View(model);
-            }
+
+            return RedirectToAction("Index", "Home");
         }
         public IActionResult GetAllPhotos()
         {
