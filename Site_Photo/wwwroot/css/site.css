@@ -56,3 +56,12 @@ body {
     font-size: 1.5em;
     cursor: pointer;
 }
+.actionBtn {
+    text-decoration:none;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}

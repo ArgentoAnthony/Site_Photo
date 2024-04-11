@@ -38,12 +38,6 @@ namespace Site_Photo.Controllers
             _photoService.DeletePhoto(IdPhoto);
             return RedirectToAction("GetAllPhotos");
         }
-        public IActionResult Category()
-        {
-            IEnumerable<Category> categories = _photoService.GetAllCategory();
-            return View(categories);
-        }
-
         public IActionResult AjoutPhoto()
         {
             var model = new AddPhotoDTO()
@@ -97,6 +91,34 @@ namespace Site_Photo.Controllers
         {
             List<string> photoPaths = _photoService.GetAllPhotos();
             return View("ListPhoto", photoPaths);
+        }
+        public IActionResult ListCategory()
+        {
+            IEnumerable<Category> categories = _photoService.GetAllCategory();
+            return View(categories);
+        }
+        public IActionResult CreateCategory(CategoryDTO model, int id)
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult CreateCategory(CategoryDTO model)
+        {
+            _photoService.CreateCategory(model);
+            return RedirectToAction("ListCategory", "Home");
+        }
+        public IActionResult DeleteCategory(int id)
+        {
+            _photoService.DeleteCategory(id);
+            return RedirectToAction("ListCategory", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult UpdateCategory(int id, string newName) 
+        {
+            var model = new CategoryDTO { Name = newName };
+            _photoService.UpdateCategory(model, id);
+            return RedirectToAction("ListCategory", "Home");
         }
 
         public IActionResult Privacy()

@@ -4,6 +4,7 @@ using Site_Photo_DAL.Interface;
 using Site_Photo_DAL.Models;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 
 
 namespace Site_Photo_DAL.Services
@@ -20,7 +21,7 @@ namespace Site_Photo_DAL.Services
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                IEnumerable<Category> categories = connection.Query<Category>("SELECT Id, [Name] FROM Category");
+                IEnumerable<Category> categories = connection.Query<Category>("SELECT Id, [Name] FROM Category ORDER BY Id");
                 return categories;
             }
         }
@@ -36,6 +37,34 @@ namespace Site_Photo_DAL.Services
             }
             return Name;
         }
+        public void CreateCategory(CategoryDTO model)
+        {
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"INSERT INTO Category (Name) 
+                                 VALUES (@Name)";
+                connection.Execute(query, model);
+            }
+        }
+        public void UpdateCategory(CategoryDTO model, int id)
+        {
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"UPDATE Category SET Name = @Name WHERE Id = @Id";
+                connection.Execute(query, new { Name = model.Name, Id = id });
+            }
+        }
+        public void DeleteCategory(int id)
+        {
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string Query = "DELETE FROM Category WHERE Id = @Id";
+                connection.Execute(Query, new { Id = id });
+            }
+        }
 
         public void InsertPhoto(AddPhotoDTO model)
         {
@@ -46,7 +75,7 @@ namespace Site_Photo_DAL.Services
                                  VALUES (@ImagePath, @Id_Category, @DateAjout)";
                 connection.Execute(query, model);
             }
-        }
+        } 
 
         public List<string> GetAllPhotos()
         {

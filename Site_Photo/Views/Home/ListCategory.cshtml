@@ -1,0 +1,64 @@
+﻿@model IEnumerable<Site_Photo_DAL.Models.Category>
+
+@{
+    ViewData["Title"] = "ListCategory";
+}
+
+<h1>ListCategory</h1>
+
+<p>
+    <a asp-action="CreateCategory">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <span id="categoryName_@item.Id">@item.Name</span>
+                    <input type="text" id="editCategoryName_@item.Id" style="display: none;" />
+                </td>
+                <td>
+                    <button class="actionBtn editBtn" data-id="@item.Id">Edit</button> 
+                    @Html.ActionLink("Delete", "DeleteCategory", new { id = item.Id }, new {@class = "actionBtn"})
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".editBtn").click(function () {
+                var categoryId = $(this).data("id");
+                var categoryNameSpan = $("#categoryName_" + categoryId);
+                var editCategoryNameInput = $("#editCategoryName_" + categoryId);
+                var editBtn = $(this);
+
+                if (editBtn.text() === "Edit") {
+                    // Switch to edit mode
+                    categoryNameSpan.hide();
+                    editCategoryNameInput.val(categoryNameSpan.text()).show();
+                    editBtn.text("Update");
+                } else {
+                    // Switch to view mode and update category name
+                    var newName = editCategoryNameInput.val();
+                    $.post("/Home/UpdateCategory", { id: categoryId, newName: newName }, function () {
+                        categoryNameSpan.text(newName).show();
+                        editCategoryNameInput.hide();
+                        editBtn.text("Edit");
+                    });
+                }
+            });
+        });
+    </script>
+}
