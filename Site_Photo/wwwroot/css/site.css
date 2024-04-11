@@ -38,3 +38,21 @@ body {
             width: 100%;
             height: auto; 
         }
+.thumbnail-container {
+    position: relative;
+    display: inline-block; 
+}
+
+.delete-form {
+    position: absolute;
+    top: 5px;
+    right: 5px; 
+}
+
+.delete-button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: 1.5em;
+    cursor: pointer;
+}

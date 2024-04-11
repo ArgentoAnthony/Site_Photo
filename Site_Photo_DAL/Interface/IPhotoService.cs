@@ -10,8 +10,10 @@ namespace Site_Photo_DAL.Interface
 {
     public interface IPhotoService
     {
-        IEnumerable<string> GetAllCategory();
+        void DeletePhoto(int id);
+        IEnumerable<Category> GetAllCategory();
         List<string> GetAllPhotos();
+        int GetPhotoIdByPath(string path);
         void InsertPhoto(AddPhotoDTO model);
     }
 }

@@ -5,7 +5,15 @@
 <ul id="ListMiniature">
     @foreach (var imagePath in Model)
     {
-        <li><img src="/@Url.Content(imagePath)" alt="Image" class="thumbnail" /></li>
+        <li>
+            <div class="thumbnail-container">
+                <img src="/@Url.Content(imagePath)" alt="Image" class="thumbnail" />
+                <form method="post" action="/Home/DeletePhoto" class="delete-form">
+                    <input type="hidden" name="PathPhoto" value="@imagePath" />
+                    <button type="submit" class="delete-button">&times;</button>
+                </form>
+            </div>
+        </li>
     }
 </ul>
 

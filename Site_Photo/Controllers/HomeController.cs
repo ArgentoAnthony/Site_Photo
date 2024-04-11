@@ -26,15 +26,26 @@ namespace Site_Photo.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public IActionResult DeletePhoto(string PathPhoto)
+        {
+            int IdPhoto = _photoService.GetPhotoIdByPath(PathPhoto);
+            _photoService.DeletePhoto(IdPhoto);
+            return RedirectToAction("GetAllPhotos");
+        }
         public IActionResult Category()
         {
-            IEnumerable<string> categories = _photoService.GetAllCategory();
+            IEnumerable<Category> categories = _photoService.GetAllCategory();
             return View(categories);
         }
 
         public IActionResult AjoutPhoto()
         {
-            return View();
+            var model = new AddPhotoDTO()
+            {
+                Categories = _photoService.GetAllCategory().ToList()
+            };
+            return View(model);
         }
 
         [HttpPost]
