@@ -17,6 +17,7 @@ namespace Site_Photo_DAL.Interface
         List<string> GetAllPhotos();
         string GetCategoryNameById(int id);
         int GetPhotoIdByPath(string path);
+        List<string> GetPhotoPathsByCategoryId(int id);
         void InsertPhoto(AddPhotoDTO model);
         void UpdateCategory(CategoryDTO model, int id);
     }

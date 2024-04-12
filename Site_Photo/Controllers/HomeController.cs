@@ -4,6 +4,7 @@ using Site_Photo.Models;
 using Site_Photo_DAL.Interface;
 using Site_Photo_DAL.Models;
 using System.Diagnostics;
+using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -64,11 +65,6 @@ namespace Site_Photo.Controllers
                     var imagePath = Path.Combine(categoryPath, fileName);
                     var filePath = Path.Combine(webRootPath, imagePath);
 
-                    if (!Directory.Exists(categoryPath))
-                    {
-                        Directory.CreateDirectory(categoryPath);
-                    }
-
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         image.CopyTo(stream);
@@ -105,16 +101,38 @@ namespace Site_Photo.Controllers
         public IActionResult CreateCategory(CategoryDTO model)
         {
             _photoService.CreateCategory(model);
+            var categoryName = model.Name;
+            var webRootPath = _webHostEnvironment.WebRootPath;
+            var categoryPath = Path.Combine(webRootPath, "images", categoryName);
+
+            if (!Directory.Exists(categoryPath))
+            {
+                Directory.CreateDirectory(categoryPath);
+            }
+
             return RedirectToAction("ListCategory", "Home");
         }
         public IActionResult DeleteCategory(int id)
         {
+            var imagePaths = _photoService.GetPhotoPathsByCategoryId(id);
+
+            foreach (var imagePath in imagePaths)
+            {
+                var webRootPath = _webHostEnvironment.WebRootPath;
+                var fullPath = Path.Combine(webRootPath, imagePath);
+
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+
+            }
             _photoService.DeleteCategory(id);
             return RedirectToAction("ListCategory", "Home");
         }
 
         [HttpPost]
-        public IActionResult UpdateCategory(int id, string newName) 
+        public IActionResult UpdateCategory(int id, string newName)
         {
             var model = new CategoryDTO { Name = newName };
             _photoService.UpdateCategory(model, id);

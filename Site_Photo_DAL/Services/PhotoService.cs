@@ -13,7 +13,6 @@ namespace Site_Photo_DAL.Services
     {
         public PhotoService(IConfiguration config) : base(config)
         {
-
         }
 
         public IEnumerable<Category> GetAllCategory()
@@ -56,11 +55,24 @@ namespace Site_Photo_DAL.Services
                 connection.Execute(query, new { Name = model.Name, Id = id });
             }
         }
+        public List<string> GetPhotoPathsByCategoryId(int id)
+        {
+            List<string> photoPaths = new List<string>();
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"SELECT ImagePath FROM Photos P JOIN Category C on C.Id = P.Id_Category WHERE C.Id = @Id";;
+                photoPaths = connection.Query<string>(query, new {Id = id}).ToList();
+            }
+            return photoPaths;
+        }
         public void DeleteCategory(int id)
         {
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
+                string deletePhotosQuery = "DELETE FROM Photos WHERE Id_Category = @Id";
+                connection.Execute(deletePhotosQuery, new { Id = id });
                 string Query = "DELETE FROM Category WHERE Id = @Id";
                 connection.Execute(Query, new { Id = id });
             }
