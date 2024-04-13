@@ -16,6 +16,7 @@ namespace Site_Photo_DAL.Models
         public List<Category> Categories { get; set; }
         public int Id_Category { get; set; }
         public string ImagePath { get; set; }
+        public string MiniaturePath { get; set; }
         public DateTime DateAjout { get; set; }
     }
 }

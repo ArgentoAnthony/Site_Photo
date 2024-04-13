@@ -26,18 +26,18 @@ body {
     padding: 0;
 }
 
-    #ListMiniature li {
+   #ListMiniature li {
         display: inline-block;
         margin-right: 1em;
-        max-width: 30%;
-        box-sizing: border-box; 
+        /*max-width: 30%;*/
+        /*box-sizing: border-box;*/ 
         padding: 0; 
     }
 
-        #ListMiniature li .thumbnail {
+      /*  #ListMiniature li .thumbnail {
             width: 100%;
             height: auto; 
-        }
+        }*/
 .thumbnail-container {
     position: relative;
     display: inline-block; 

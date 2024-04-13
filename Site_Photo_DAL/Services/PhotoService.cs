@@ -9,10 +9,14 @@ using System.Reflection;
 
 namespace Site_Photo_DAL.Services
 {
-    public class PhotoService : BaseService<Photo>, IPhotoService
+    public class PhotoService : IPhotoService
     {
-        public PhotoService(IConfiguration config) : base(config)
+        private readonly IImageProcessor _imageProcessor;
+        protected readonly string _connectionString;
+        public PhotoService(IConfiguration config, IImageProcessor imageProcessor)
         {
+            _imageProcessor = imageProcessor;
+            _connectionString = config.GetConnectionString("default");
         }
 
         public IEnumerable<Category> GetAllCategory()
@@ -83,19 +87,27 @@ namespace Site_Photo_DAL.Services
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = @"INSERT INTO Photos (ImagePath, Id_Category, Date_Ajout) 
-                                 VALUES (@ImagePath, @Id_Category, @DateAjout)";
+                string query = @"INSERT INTO Photos (ImagePath,MiniaturePath, Id_Category, Date_Ajout) 
+                                 VALUES (@ImagePath,@MiniaturePath, @Id_Category, @DateAjout)";
                 connection.Execute(query, model);
             }
         } 
 
-        public List<string> GetAllPhotos()
+        public List<string> GetAllPhotos(bool largePhoto = false)
         {
             List<string> photoPaths = new List<string>();
             using (IDbConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT TOP 50 ImagePath FROM Photos";
+                string query;
+                if (largePhoto)
+                {
+                    query = "SELECT TOP 50 ImagePath FROM Photos";
+                }
+                else
+                {
+                    query = "SELECT TOP 50 MiniaturePath FROM Photos";
+                }
                 photoPaths = connection.Query<string>(query).ToList();
             }
             return photoPaths;

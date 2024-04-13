@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddTransient<SqlConnection>(pc => new(builder.Configuration.GetConnectionString("default")));
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IImageProcessor, ImageProcessor>();
+
 
 var app = builder.Build();
 

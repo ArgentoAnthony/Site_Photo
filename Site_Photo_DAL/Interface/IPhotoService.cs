@@ -14,7 +14,7 @@ namespace Site_Photo_DAL.Interface
         void DeleteCategory(int id);
         void DeletePhoto(int id);
         IEnumerable<Category> GetAllCategory();
-        List<string> GetAllPhotos();
+        List<string> GetAllPhotos( bool largePhoto);
         string GetCategoryNameById(int id);
         int GetPhotoIdByPath(string path);
         List<string> GetPhotoPathsByCategoryId(int id);

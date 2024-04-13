@@ -4,9 +4,7 @@ using Site_Photo.Models;
 using Site_Photo_DAL.Interface;
 using Site_Photo_DAL.Models;
 using System.Diagnostics;
-using System.IO;
-using System.Drawing;
-using System.Drawing.Imaging;
+using Site_Photo_DAL.Services;
 
 namespace Site_Photo.Controllers
 {
@@ -15,12 +13,14 @@ namespace Site_Photo.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IPhotoService _photoService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IImageProcessor _imageProcessor;
 
-        public HomeController(ILogger<HomeController> logger, IPhotoService photoService, IWebHostEnvironment webHostEnvironment)
+        public HomeController(ILogger<HomeController> logger, IPhotoService photoService, IWebHostEnvironment webHostEnvironment, IImageProcessor imageProcessor)
         {
             _logger = logger;
             _photoService = photoService;
             _webHostEnvironment = webHostEnvironment;
+            _imageProcessor = imageProcessor;
         }
 
         public IActionResult Index()
@@ -63,16 +63,25 @@ namespace Site_Photo.Controllers
                     var webRootPath = _webHostEnvironment.WebRootPath;
                     var categoryPath = Path.Combine("images", categoryName);
                     var imagePath = Path.Combine(categoryPath, fileName);
+                    var miniaturePath = Path.Combine(categoryPath, "miniatures", fileName);
                     var filePath = Path.Combine(webRootPath, imagePath);
+                    var miniatureFilePath = Path.Combine(webRootPath, miniaturePath);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         image.CopyTo(stream);
                     }
 
+                    using (var imageStream = new FileStream(filePath, FileMode.Open))
+                    using (var miniatureStream = new FileStream(miniatureFilePath, FileMode.Create))
+                    {
+                        _imageProcessor.ProcessImage(imageStream, miniatureStream, 200, 200, 80);
+                    }
+
                     var photoModel = new AddPhotoDTO
                     {
                         ImagePath = imagePath,
+                        MiniaturePath = miniaturePath,
                         Id_Category = categoryId,
                         DateAjout = DateTime.Now
                     };
@@ -83,9 +92,9 @@ namespace Site_Photo.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        public IActionResult GetAllPhotos()
+        public IActionResult GetAllPhotos(bool largePhoto = false)
         {
-            List<string> photoPaths = _photoService.GetAllPhotos();
+            List<string> photoPaths = _photoService.GetAllPhotos(largePhoto);
             return View("ListPhoto", photoPaths);
         }
         public IActionResult ListCategory()
@@ -93,7 +102,7 @@ namespace Site_Photo.Controllers
             IEnumerable<Category> categories = _photoService.GetAllCategory();
             return View(categories);
         }
-        public IActionResult CreateCategory(CategoryDTO model, int id)
+        public IActionResult CreateCategory()
         {
             return View();
         }
@@ -104,30 +113,31 @@ namespace Site_Photo.Controllers
             var categoryName = model.Name;
             var webRootPath = _webHostEnvironment.WebRootPath;
             var categoryPath = Path.Combine(webRootPath, "images", categoryName);
+            var miniaturePath = Path.Combine(categoryPath, "miniatures");
 
             if (!Directory.Exists(categoryPath))
             {
                 Directory.CreateDirectory(categoryPath);
             }
 
+            if (!Directory.Exists(miniaturePath))
+            {
+                Directory.CreateDirectory(miniaturePath);
+            }
+
             return RedirectToAction("ListCategory", "Home");
         }
         public IActionResult DeleteCategory(int id)
         {
-            var imagePaths = _photoService.GetPhotoPathsByCategoryId(id);
+            var webRootPath = _webHostEnvironment.WebRootPath;
+            var categoryPath = Path.Combine(webRootPath, "images", _photoService.GetCategoryNameById(id));
 
-            foreach (var imagePath in imagePaths)
+            if (Directory.Exists(categoryPath))
             {
-                var webRootPath = _webHostEnvironment.WebRootPath;
-                var fullPath = Path.Combine(webRootPath, imagePath);
-
-                if (System.IO.File.Exists(fullPath))
-                {
-                    System.IO.File.Delete(fullPath);
-                }
-
+                Directory.Delete(categoryPath, true);
             }
             _photoService.DeleteCategory(id);
+
             return RedirectToAction("ListCategory", "Home");
         }
 
