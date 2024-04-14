@@ -23,21 +23,39 @@ namespace Site_Photo.Controllers
             _imageProcessor = imageProcessor;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? categoryId = null, bool largePhoto = false)
         {
-            return View();
+            var categories = _photoService.GetAllCategory();
+            List<string> photoPaths = _photoService.GetAllPhotos(categoryId, largePhoto);
+            ViewBag.Categories = categories;
+            return View(photoPaths);   
         }
         [HttpPost]
-        public IActionResult DeletePhoto(string PathPhoto)
+        public IActionResult DeletePhoto(string PathMinia)
         {
-            int IdPhoto = _photoService.GetPhotoIdByPath(PathPhoto);
-            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, PathPhoto);
-            if (System.IO.File.Exists(filePath))
+            int IdPhoto = _photoService.GetPhotoIdByMiniaturePath(PathMinia);
+            string PathPhoto = _photoService.GetPhotoPathsById(IdPhoto);
+            try
             {
-                System.IO.File.Delete(filePath);
+                var miniaPath = Path.Combine(_webHostEnvironment.WebRootPath, PathMinia);
+                if (System.IO.File.Exists(miniaPath))
+                {
+                    System.IO.File.Delete(miniaPath);
+                }
+                var photoPath = Path.Combine(_webHostEnvironment.WebRootPath, PathPhoto);
+                if (System.IO.File.Exists(photoPath))
+                {
+                    System.IO.File.Delete(photoPath);
+                }
+
+                _photoService.DeletePhoto(IdPhoto);
+
+                return RedirectToAction("GetAllPhotosAdmin");
             }
-            _photoService.DeletePhoto(IdPhoto);
-            return RedirectToAction("GetAllPhotos");
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Une erreur s'est produite lors de la suppression de la photo : {ex.Message}");
+            }
         }
         public IActionResult AjoutPhoto()
         {
@@ -75,7 +93,7 @@ namespace Site_Photo.Controllers
                     using (var imageStream = new FileStream(filePath, FileMode.Open))
                     using (var miniatureStream = new FileStream(miniatureFilePath, FileMode.Create))
                     {
-                        _imageProcessor.ProcessImage(imageStream, miniatureStream, 200, 200, 80);
+                        _imageProcessor.ProcessImage(imageStream, miniatureStream, 300, 300, 80);
                     }
 
                     var photoModel = new AddPhotoDTO
@@ -92,9 +110,29 @@ namespace Site_Photo.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        public IActionResult GetAllPhotos(bool largePhoto = false)
+        [HttpGet]
+        public IActionResult GetAllPhotos()
         {
-            List<string> photoPaths = _photoService.GetAllPhotos(largePhoto);
+            var photoPaths = _photoService.GetAllPhotos();
+            return Json(photoPaths);
+        }
+
+        [HttpGet]
+        public IActionResult GetPhotosByCategory(int categoryId)
+        {
+            if (categoryId == 0)
+            {
+                return GetAllPhotos();
+            }
+            else
+            {
+                var photoPaths = _photoService.GetPhotoPathsByCategoryId(categoryId);
+                return Json(photoPaths);
+            }
+        }
+        public IActionResult GetAllPhotosAdmin(int? id = null,bool largePhoto = false)
+        {
+            List<string> photoPaths = _photoService.GetAllPhotos(id, largePhoto);
             return View("ListPhoto", photoPaths);
         }
         public IActionResult ListCategory()

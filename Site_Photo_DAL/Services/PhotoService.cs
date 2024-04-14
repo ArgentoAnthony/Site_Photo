@@ -70,6 +70,17 @@ namespace Site_Photo_DAL.Services
             }
             return photoPaths;
         }
+        public List<string> GetMiniaturePathsByCategoryId(int id)
+        {
+            List<string> photoPaths = new List<string>();
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"SELECT MiniaturePath FROM Photos P JOIN Category C on C.Id = P.Id_Category WHERE C.Id = @Id"; ;
+                photoPaths = connection.Query<string>(query, new { Id = id }).ToList();
+            }
+            return photoPaths;
+        }
         public void DeleteCategory(int id)
         {
             using (IDbConnection connection = new SqlConnection(_connectionString))
@@ -91,9 +102,9 @@ namespace Site_Photo_DAL.Services
                                  VALUES (@ImagePath,@MiniaturePath, @Id_Category, @DateAjout)";
                 connection.Execute(query, model);
             }
-        } 
+        }
 
-        public List<string> GetAllPhotos(bool largePhoto = false)
+        public List<string> GetAllPhotos(int? categoryId = null, bool largePhoto = false)
         {
             List<string> photoPaths = new List<string>();
             using (IDbConnection connection = new SqlConnection(_connectionString))
@@ -108,12 +119,29 @@ namespace Site_Photo_DAL.Services
                 {
                     query = "SELECT TOP 50 MiniaturePath FROM Photos";
                 }
-                photoPaths = connection.Query<string>(query).ToList();
+
+                if (categoryId.HasValue)
+                {
+                    query += " WHERE Id_Category = @CategoryId";
+                }
+
+                photoPaths = connection.Query<string>(query, new { CategoryId = categoryId }).ToList();
             }
             return photoPaths;
         }
 
-        public int GetPhotoIdByPath(string path)
+        public int GetPhotoIdByMiniaturePath(string path)
+        {
+            int IdPhoto;
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string Query = $"SELECT Id FROM Photos Where MiniaturePath = @Path";
+                IdPhoto = connection.QuerySingleOrDefault<int>(Query, new { Path = path });
+            }
+            return IdPhoto;
+        }
+        public int GetPhotoIdByPhotoPath(string path)
         {
             int IdPhoto;
             using (IDbConnection connection = new SqlConnection(_connectionString))
@@ -124,6 +152,18 @@ namespace Site_Photo_DAL.Services
             }
             return IdPhoto;
         }
+        public string GetPhotoPathsById(int id)
+        {
+            string photoPaths;
+            using (IDbConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"SELECT ImagePath FROM Photos WHERE Id = @Id"; ;
+                photoPaths = connection.QuerySingleOrDefault<string>(query, new { Id = id });
+            }
+            return photoPaths;
+        }
+
 
         public void DeletePhoto(int id)
         {
@@ -134,8 +174,6 @@ namespace Site_Photo_DAL.Services
                 connection.Execute(Query, new { Id = id });
             }
         }
-
-
 
     }
 }

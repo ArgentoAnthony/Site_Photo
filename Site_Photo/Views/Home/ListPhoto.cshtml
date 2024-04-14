@@ -2,18 +2,17 @@
 
 <h2>Liste des photos</h2>
 
-<ul id="ListMiniature">
+<div class="grid-container">
     @foreach (var imagePath in Model)
     {
-        <li>
-            <div class="thumbnail-container">
-                <img src="/@Url.Content(imagePath)" alt="Image" class="thumbnail" />
-                <form method="post" action="/Home/DeletePhoto" class="delete-form">
-                    <input type="hidden" name="PathPhoto" value="@imagePath" />
-                    <button type="submit" class="delete-button">&times;</button>
-                </form>
-            </div>
-        </li>
+        <div class="thumbnail-container">
+            <img src="/@Url.Content(imagePath)" alt="Image" class="thumbnail" />
+            <form method="post" action="/Home/DeletePhoto" class="delete-form">
+                <input type="hidden" name="PathMinia" value="@imagePath" />
+                <button type="submit" class="delete-button">&times;</button>
+            </form>
+        </div>
     }
-</ul>
+</div>
+
 

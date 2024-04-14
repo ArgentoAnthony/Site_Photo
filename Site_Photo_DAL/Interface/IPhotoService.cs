@@ -14,10 +14,13 @@ namespace Site_Photo_DAL.Interface
         void DeleteCategory(int id);
         void DeletePhoto(int id);
         IEnumerable<Category> GetAllCategory();
-        List<string> GetAllPhotos( bool largePhoto);
+        List<string> GetAllPhotos(int? categoryId = null, bool largePhoto = false);
         string GetCategoryNameById(int id);
-        int GetPhotoIdByPath(string path);
+        List<string> GetMiniaturePathsByCategoryId(int id);
+        int GetPhotoIdByMiniaturePath(string path);
+        int GetPhotoIdByPhotoPath(string path);
         List<string> GetPhotoPathsByCategoryId(int id);
+        string GetPhotoPathsById(int id);
         void InsertPhoto(AddPhotoDTO model);
         void UpdateCategory(CategoryDTO model, int id);
     }
