@@ -67,15 +67,14 @@ namespace Site_Photo.Controllers
         }
 
         [HttpPost]
-        public IActionResult AjoutPhoto(AddPhotoDTO model)
+        public async Task<IActionResult> AjoutPhoto(int Id_Category)
         {
-            foreach (var image in model.Images)
+            foreach (var file in Request.Form.Files)
             {
-                if (image != null && image.Length > 0)
+                if (file != null && file.Length > 0)
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                    int categoryId = model.Id_Category;
-                    var categoryName = _photoService.GetCategoryNameById(categoryId);
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var categoryName = _photoService.GetCategoryNameById(Id_Category);
 
                     // Créer le chemin de destination en fonction de la catégorie
                     var webRootPath = _webHostEnvironment.WebRootPath;
@@ -87,20 +86,20 @@ namespace Site_Photo.Controllers
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        image.CopyTo(stream);
+                        await file.CopyToAsync(stream);
                     }
 
                     using (var imageStream = new FileStream(filePath, FileMode.Open))
                     using (var miniatureStream = new FileStream(miniatureFilePath, FileMode.Create))
                     {
-                        _imageProcessor.ProcessImage(imageStream, miniatureStream, 300, 300, 80);
+                        _imageProcessor.ProcessImage(imageStream, miniatureStream, 500, 500, 100);
                     }
 
                     var photoModel = new AddPhotoDTO
                     {
                         ImagePath = imagePath,
                         MiniaturePath = miniaturePath,
-                        Id_Category = categoryId,
+                        Id_Category = Id_Category,
                         DateAjout = DateTime.Now
                     };
 

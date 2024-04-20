@@ -10,8 +10,6 @@ namespace Site_Photo_DAL.Models
 {
     public class AddPhotoDTO
     {
-        [Required(ErrorMessage = "Veuillez sélectionner une image.")]
-        public List<IFormFile> Images { get; set; }
         [Required(ErrorMessage = "Veuillez sélectionner une catégorie.")]
         public List<Category> Categories { get; set; }
         public int Id_Category { get; set; }
