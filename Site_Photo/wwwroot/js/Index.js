@@ -65,3 +65,5 @@ categoryButtons.forEach(function (button) {
 $(document).ready(function () {
     $("#allButton").click();
 });
+
+

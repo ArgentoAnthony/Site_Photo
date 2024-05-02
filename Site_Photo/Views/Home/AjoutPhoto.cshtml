@@ -42,18 +42,15 @@
 
 <script>
     $(document).ready(function () {
-        // Initialiser Dropzone.js sur le formulaire avec l'ID "myDropzone"
         Dropzone.options.myDropzone = {
-            maxFilesize: null, // Taille maximale des fichiers en Mo
-            maxFiles: 100, // Nombre maximal de fichiers pouvant être téléchargés
-            acceptedFiles: 'image/*', // Types de fichiers acceptés (ici uniquement des images)
+            maxFilesize: null,
+            maxFiles: 100,
+            acceptedFiles: 'image/*',
             init: function () {
                 this.on('success', function (file, response) {
-                    // Réagir au succès du téléversement
-                    console.log('Téléversement réussi :', response);
+                    console.log('Téléversement réussi :', response);g
                 });
                 this.on('error', function (file, errorMessage) {
-                    // Réagir en cas d'erreur de téléversement
                     console.error('Erreur lors du téléversement :', errorMessage);
                 });
             }

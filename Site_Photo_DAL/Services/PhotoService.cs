@@ -113,11 +113,11 @@ namespace Site_Photo_DAL.Services
                 string query;
                 if (largePhoto)
                 {
-                    query = "SELECT TOP 50 ImagePath FROM Photos";
+                    query = "SELECT ImagePath FROM Photos";
                 }
                 else
                 {
-                    query = "SELECT TOP 50 MiniaturePath FROM Photos";
+                    query = "SELECT MiniaturePath FROM Photos";
                 }
 
                 if (categoryId.HasValue)

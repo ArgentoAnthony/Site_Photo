@@ -124,10 +124,23 @@ namespace Site_Photo.Controllers
                 return GetAllPhotos();
             }
             else
-            {
-                var photoPaths = _photoService.GetPhotoPathsByCategoryId(categoryId);
+            {   
+                var photoPaths = _photoService.GetMiniaturePathsByCategoryId(categoryId);
                 return Json(photoPaths);
             }
+        }
+        [HttpGet]
+        public IActionResult GetPhotoIdByMiniaturePath(string path)
+        {
+            int photoId = _photoService.GetPhotoIdByMiniaturePath(path);
+            return Json(photoId);
+        }
+
+        [HttpGet]
+        public IActionResult GetPhotoPathsById(int id)
+        {
+            string photoPaths = _photoService.GetPhotoPathsById(id);
+            return Json(photoPaths);
         }
         public IActionResult GetAllPhotosAdmin(int? id = null,bool largePhoto = false)
         {
